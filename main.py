@@ -58,9 +58,6 @@ def get_random_cafe():
         'img_url': random_cafe.img_url,
         'location': random_cafe.location,
 
-
-
-
     })
 @app.route("/all")
 def get_all_cafe():
@@ -103,12 +100,44 @@ def search_cafe():
     else:
         return jsonify(error = {"Not Found": "Sorry, we don't have a cafe at that location"})
 
-
-
-
 # HTTP POST - Create Record
+@app.route("/add", methods= ["POST"])
+def add_cafe():
+    new_cafe = Cafe(
+        name=request.form.get("name"),
+        map_url=request.form.get("map_url"),
+        img_url=request.form.get("img_url"),
+        location=request.form.get("loc"),
+        has_sockets=bool(request.form.get("sockets")),
+        has_toilet=bool(request.form.get("toilet")),
+        has_wifi=bool(request.form.get("wifi")),
+        can_take_calls=bool(request.form.get("calls")),
+        seats=request.form.get("seats"),
+        coffee_price=request.form.get("coffee_price"),
+    )
+    db.session.add(new_cafe)
+    db.session.commit()
+    return jsonify(response={"success": "Successfully added the new cafe."})
 
 # HTTP PUT/PATCH - Update Record
+@app.route("/update-price/<int:cafe_id>", methods= ["PATCH"])
+def cafe_price_update(cafe_id):
+    new_price_coffee = request.args.get("new_price")
+    result = db.session.execute(db.select(Cafe).where(Cafe.id == cafe_id))
+    selected_cafe= result.scalar()
+    if selected_cafe:
+        selected_cafe.coffee_price = new_price_coffee
+        db.session.commit()
+        return jsonify(response={"success": "Successfully updated the price."})
+    else:
+        return jsonify(response={"Not found": "Invalid ID."})
+
+
+
+
+
+
+
 
 # HTTP DELETE - Delete Record
 
