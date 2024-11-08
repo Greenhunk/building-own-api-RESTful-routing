@@ -1,5 +1,4 @@
 import random
-
 import flask.json
 from flask import Flask, jsonify, render_template, request
 from flask_sqlalchemy import SQLAlchemy
@@ -131,15 +130,24 @@ def cafe_price_update(cafe_id):
         return jsonify(response={"success": "Successfully updated the price."})
     else:
         return jsonify(response={"Not found": "Invalid ID."})
-
-
-
-
-
-
-
-
 # HTTP DELETE - Delete Record
+@app.route("/report-closed/<int:cafe_id>", methods= ["DELETE"])
+def del_cafe(cafe_id):
+    api_key = request.args.get("api_key")
+    result = db.session.execute(db.select(Cafe).where(Cafe.id == cafe_id))
+    selected_cafe = result.scalar()
+    if selected_cafe:
+        if api_key == "TopSecretAPIKey":
+            db.session.delete(selected_cafe)
+            db.session.commit()
+            return jsonify(response={"success": "Successfully deleted the cafe."})
+        else:
+            return jsonify(response={"Error": "API key not valid"})
+    else:
+        return jsonify(response={"Not found": "Invalid ID."})
+
+
+
 
 
 if __name__ == '__main__':
